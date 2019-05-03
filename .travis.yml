@@ -29,3 +29,18 @@ jobs:
     - stage: test
       os: windows
       node_js: '8'
+    - stage: release
+      if: tag IS present
+      os: linux
+      node_js: '10'
+      script: echo 'Deploying to npm...'
+      after_success: skip
+      deploy:
+        provider: npm
+        email: vatev.1+npm@gmail.com
+        api_key:
+          secure: cedvTQRDcsC8ipMX96RB2tSaECSA+47mI8G9ky0HRqjlKZX6MB4fuNueNuW/Gh4p+iXkdI8bq91VEbEW95fx5f0IAK/d64ErMD4+YaC4XtxBx6tcF0VjHqC+rfyUuduzzr8xu80IQIK/73mw34ThZirjv6Pu1LBb6USeSoj/RpcydNdxG0s2PMA4vyWgsPTKBxKGVbJpiOTjzwd6R5YmcCRF4Xyj/xLP2nPDuCilj72yejJgM96TYExXMM4Q+c55Ruupbjk63u+CcCF55RxR+0sBC3ZlA0R2XGADF4gege2shrV2Ih2sZuYXq+oru24uPVDr1tlIeY1NDg3sh54iaGhQ0bN+AsX4PzfTg+UpFB6cUne29WixZxVSnR6Ccc9+Ruk9c230slGmaHEbTkM8Q66vmmmWSvCFwJNxDC4UJcJDsfxUNdEqSCWRepmGzpy2JsYGjbfILMjOd4FvJ0MTGw4Mxe9LTL/KaLTmYvZ5ZMNpv9UOhtbAH7GDuiOAQewH5WgeLnhYCWfQPo1W8xMZHRps61SplprIITSP9Ki3413OpAKvydrP5RCK4Xf0WyCa3McMmUckX1ngYfe4pHPCBVMZz1hn4hymcOfdsFk25huEACVHGiCNJDRgdIGDFICjcl9i8cN+HGauDhsy8L0cg1Dm+czxXlE7SESEAyHZbig=
+        on:
+          tags: true
+          repo: catdad/fs-watch-file
+
