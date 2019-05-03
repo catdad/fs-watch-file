@@ -28,7 +28,7 @@ module.exports = (options) => {
 
       if (eventType === 'error') {
         delete files[filepath];
-        const error = new Error('file watch error');
+        const error = new Error('watcher errored');
         error.code = 'UnexpectedError';
         error.filepath = filepath;
         error._arguments = arguments;
