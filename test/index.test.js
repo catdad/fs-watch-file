@@ -1,9 +1,14 @@
 /* jshint esversion: 6, node: true, mocha: true */
 const path = require('path');
+const fs = require('fs');
+const vm = require('vm');
+const EventEmitter = require('events');
 const expect = require('chai').expect;
 const touch = require('touch');
 
-const lib = require('../');
+const libpath = require.resolve('../');
+const libtext = fs.readFileSync(libpath, 'utf8');
+const lib = require(libpath);
 const root = path.resolve(__dirname, '..');
 const fixture = name => path.resolve(root, 'fixtures', name);
 
@@ -90,6 +95,71 @@ describe('module', () => {
         touch(fixture('two'));
         touch(fixture('three'));
       });
+    });
+  });
+
+  describe('in case of emergency', () => {
+    const vmLib = (watch, options) => {
+      const module = {};
+      const sandbox = vm.createContext({
+        require: (id) => {
+          switch (id) {
+            case 'events':
+              return EventEmitter;
+            case 'fs':
+              return { watch };
+          }
+
+          throw new Error('unknown required id: ' + id);
+        },
+        module
+      });
+
+      instance = vm.runInContext(libtext, sandbox)(options);
+    };
+
+    it('emits an error if a file watcher closes unexpectedly', done => {
+      const name = 'pineapples';
+
+      vmLib((file, opts, cb) => {
+        setTimeout(() => {
+          cb('close');
+        }, 1);
+
+        return {};
+      });
+
+      instance.on('error', err => {
+        expect(err).to.have.property('code', 'UnexpectedClose');
+        expect(err).to.have.property('filepath', name);
+        expect(err).to.have.property('message', 'watcher closed unexpectedly');
+
+        done();
+      });
+
+      instance.add(name);
+    });
+
+    it('emits an error if a file watcher errors unexpectedly', done => {
+      const name = 'bananas';
+
+      vmLib((file, opts, cb) => {
+        setTimeout(() => {
+          cb('error');
+        }, 1);
+
+        return {};
+      });
+
+      instance.on('error', err => {
+        expect(err).to.have.property('code', 'UnexpectedError');
+        expect(err).to.have.property('filepath', name);
+        expect(err).to.have.property('message', 'watcher errored');
+
+        done();
+      });
+
+      instance.add(name);
     });
   });
 
