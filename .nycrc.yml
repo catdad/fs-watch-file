@@ -1,0 +1,10 @@
+check-coverage: true
+per-file: true
+statements: 97
+branches: 93
+functions: 100
+lines: 97
+
+reporter:
+  - lcov
+  - text

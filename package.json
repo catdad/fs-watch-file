@@ -4,7 +4,7 @@
   "description": "fs-watch-file",
   "main": "index.js",
   "scripts": {
-    "test": "nyc --reporter=lcov --reporter=text --hook-run-in-context mocha"
+    "test": "nyc --hook-run-in-context mocha"
   },
   "repository": {
     "type": "git",
