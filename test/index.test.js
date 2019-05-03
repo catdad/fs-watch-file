@@ -19,6 +19,22 @@ describe('module', () => {
   beforeEach(reset);
   afterEach(reset);
 
+  it('has the expected event methods', () => {
+    instance = lib();
+
+    expect(instance).to.have.all.keys([
+      'on', 'once', 'off', 'add', 'remove', 'close', 'options'
+    ]);
+
+    expect(instance).to.have.property('on').and.to.be.a('function');
+    expect(instance).to.have.property('once').and.to.be.a('function');
+    expect(instance).to.have.property('off').and.to.be.a('function');
+    expect(instance).to.have.property('add').and.to.be.a('function');
+    expect(instance).to.have.property('remove').and.to.be.a('function');
+    expect(instance).to.have.property('close').and.to.be.a('function');
+    expect(instance).to.have.property('options').and.to.deep.equal({ persistent: true });
+  });
+
   [{
     name: 'without options',
     beforeEach: () => { instance = lib(); },
