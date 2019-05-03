@@ -21,17 +21,22 @@ module.exports = (options) => {
     }
 
     const watcher = fs.watch(filepath, { persistent: persistent }, (eventType) => {
+      if (watcher._fwf_invalid) {
+        return;
+      }
+
       if (eventType === 'change') {
         return events.emit('change', { filepath: filepath });
       }
 
+      delete files[filepath];
+      watcher._fwf_invalid = true;
+
       if (eventType === 'close' && !watcher._fwf_closed) {
-        delete files[filepath];
         return events.emit('error', createError('UnexpectedClose', filepath, 'watcher closed unexpectedly'));
       }
 
       if (eventType === 'error') {
-        delete files[filepath];
         return events.emit('error', createError('UnexpectedError', filepath, 'watcher errored'));
       }
     });
