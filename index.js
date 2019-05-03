@@ -3,6 +3,7 @@ const fs = require('fs');
 const EventEmitter = require('events');
 
 module.exports = (options) => {
+  const persistent = !(options && !options.persistent);
   const files = {};
   const events = new EventEmitter();
 
@@ -11,7 +12,7 @@ module.exports = (options) => {
       return;
     }
 
-    const watcher = fs.watch(filepath, (eventType, filename) => {
+    const watcher = fs.watch(filepath, { persistent: persistent }, (eventType, filename) => {
       if (eventType === 'change') {
         return events.emit('change', { file: filepath });
       }
