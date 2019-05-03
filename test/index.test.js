@@ -58,7 +58,7 @@ describe('module', () => {
       it('listens to changes on a specific file', done => {
         instance.add(fixture('one'));
         instance.on('change', ev => {
-          expect(ev).to.deep.equal({ file: fixture('one') });
+          expect(ev).to.deep.equal({ filepath: fixture('one') });
           done();
         });
 
@@ -73,7 +73,7 @@ describe('module', () => {
         instance.add(fixture('three'));
 
         instance.on('change', ev => {
-          files.add(ev.file);
+          files.add(ev.filepath);
 
           if (files.size === 3) {
             expect(Array.from(files).sort()).to.deep.equal([

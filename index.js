@@ -14,7 +14,7 @@ module.exports = (options) => {
 
     const watcher = fs.watch(filepath, { persistent: persistent }, (eventType, filename) => {
       if (eventType === 'change') {
-        return events.emit('change', { file: filepath });
+        return events.emit('change', { filepath: filepath });
       }
 
       if (eventType === 'close' && !watcher._fwf_closed) {
