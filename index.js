@@ -61,6 +61,7 @@ module.exports = (options) => {
     add,
     remove,
     close,
+    options: { persistent: persistent },
     on: events.on.bind(events),
     once: events.once.bind(events),
     off: events.removeListener.bind(events),

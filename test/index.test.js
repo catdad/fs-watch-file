@@ -22,16 +22,23 @@ describe('module', () => {
 
   [{
     name: 'without options',
-    beforeEach: () => { instance = lib(); }
+    beforeEach: () => { instance = lib(); },
+    options: { persistent: true }
   }, {
     name: 'with { persistent: true }',
-    beforeEach: () => { instance = lib({ persistent: true }); }
+    beforeEach: () => { instance = lib({ persistent: true }); },
+    options: { persistent: true }
   }, {
     name: 'with { persistent: false }',
-    beforeEach: () => { instance = lib({ persistent: false }); }
+    beforeEach: () => { instance = lib({ persistent: false }); },
+    options: { persistent: false }
   }].forEach(group => {
     describe(group.name, () => {
       beforeEach(group.beforeEach);
+
+      it('uses the expected options', () => {
+        expect(instance.options).to.deep.equal(group.options);
+      });
 
       it('listens to changes on a specific file', done => {
         instance.add(fixture('one'));
