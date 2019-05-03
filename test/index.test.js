@@ -161,6 +161,28 @@ describe('module', () => {
 
       instance.add(name);
     });
+
+    it('emits an error if an unknown event occurs', done => {
+      const name = 'mango';
+
+      vmLib((file, opts, cb) => {
+        setTimeout(() => {
+          cb('cheese');
+        }, 1);
+
+        return {};
+      });
+
+      instance.on('error', err => {
+        expect(err).to.have.property('code', 'UnexpectedEvent');
+        expect(err).to.have.property('filepath', name);
+        expect(err).to.have.property('message', 'watcher behaved unexpectedly');
+
+        done();
+      });
+
+      instance.add(name);
+    });
   });
 
 });
