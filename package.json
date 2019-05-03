@@ -4,7 +4,8 @@
   "description": "fs-watch-file",
   "main": "index.js",
   "scripts": {
-    "test": "nyc --hook-run-in-context mocha"
+    "test": "nyc --hook-run-in-context mocha",
+    "coverage-report": "coveralls < coverage/lcov.info"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
   ],
   "devDependencies": {
     "chai": "^4.2.0",
+    "coveralls": "^3.0.3",
     "mocha": "^6.1.4",
     "nyc": "^14.1.0",
     "sinon": "^7.3.2",

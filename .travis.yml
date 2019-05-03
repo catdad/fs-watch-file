@@ -6,6 +6,9 @@ install:
 script:
   - npm test
 
+after_success:
+  - npm run coverage-report
+
 jobs:
   include:
     - stage: test
