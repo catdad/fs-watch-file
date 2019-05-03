@@ -13,7 +13,6 @@ describe('module', () => {
   function reset() {
     if (instance) {
       instance.close();
-      instance.removeAllListeners();
     }
   }
 

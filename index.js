@@ -52,6 +52,8 @@ module.exports = (options) => {
   };
 
   const close = () => {
+    events.removeAllListeners();
+
     for (let file in files) {
       remove(file);
     }
@@ -64,7 +66,6 @@ module.exports = (options) => {
     options: { persistent: persistent },
     on: events.on.bind(events),
     once: events.once.bind(events),
-    off: events.removeListener.bind(events),
-    removeAllListeners: events.removeAllListeners.bind(events)
+    off: events.removeListener.bind(events)
   };
 };
