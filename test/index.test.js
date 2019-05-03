@@ -5,6 +5,7 @@ const vm = require('vm');
 const EventEmitter = require('events');
 const expect = require('chai').expect;
 const touch = require('touch');
+const sinon = require('sinon');
 
 const libpath = require.resolve('../');
 const libtext = fs.readFileSync(libpath, 'utf8');
@@ -99,13 +100,13 @@ describe('module', () => {
   });
 
   describe('in case of emergency', () => {
-    const vmLib = (watch, options) => {
+    const vmLib = (watch, events, options) => {
       const module = {};
       const sandbox = vm.createContext({
         require: (id) => {
           switch (id) {
             case 'events':
-              return EventEmitter;
+              return events;
             case 'fs':
               return { watch };
           }
@@ -127,7 +128,7 @@ describe('module', () => {
         }, 1);
 
         return {};
-      });
+      }, EventEmitter);
 
       instance.on('error', err => {
         expect(err).to.have.property('code', 'UnexpectedClose');
@@ -149,7 +150,7 @@ describe('module', () => {
         }, 1);
 
         return {};
-      });
+      }, EventEmitter);
 
       instance.on('error', err => {
         expect(err).to.have.property('code', 'UnexpectedError');
@@ -171,7 +172,7 @@ describe('module', () => {
         }, 1);
 
         return {};
-      });
+      }, EventEmitter);
 
       instance.on('error', err => {
         expect(err).to.have.property('code', 'UnexpectedEvent');
@@ -197,7 +198,7 @@ describe('module', () => {
         }, 1);
 
         return { close: () => {} };
-      });
+      }, EventEmitter);
 
       instance.add(name);
       instance.add(name);
@@ -213,7 +214,7 @@ describe('module', () => {
         return { close: () => {
           count += 1;
         } };
-      });
+      }, EventEmitter);
 
       instance.add(name);
       expect(count).to.equal(0);
@@ -223,6 +224,111 @@ describe('module', () => {
 
       instance.remove(name);
       expect(count).to.equal(1);
+    });
+
+    it('does not trigger changes after watcher is removed', () => {
+      const name = 'blueberry';
+      let events;
+      let trigger;
+
+      vmLib((file, opts, cb) => {
+        trigger = cb;
+        return { close: sinon.spy() };
+      }, function EventEmitter() {
+        this.on = sinon.spy();
+        this.once = sinon.spy();
+        this.removeListener = sinon.spy();
+        this.emit = sinon.spy();
+        this.removeAllListeners = sinon.spy();
+        events = this;
+      });
+
+      instance.add(name);
+      expect(trigger).to.be.a('function');
+
+      trigger('change');
+      expect(events.emit).to.have.property('callCount', 1);
+      expect(events.emit.firstCall.args).to.deep.equal(['change', { filepath: name }]);
+
+      events.emit.resetHistory();
+
+      instance.remove(name);
+      expect(events.emit).to.have.property('callCount', 0);
+
+      trigger('change');
+      expect(events.emit).to.have.property('callCount', 0);
+    });
+
+    it('does not trigger changes after an error', () => {
+      const name = 'strawberry';
+      let events;
+      let trigger;
+
+      vmLib((file, opts, cb) => {
+        trigger = cb;
+        return { close: sinon.spy() };
+      }, function EventEmitter() {
+        this.on = sinon.spy();
+        this.once = sinon.spy();
+        this.removeListener = sinon.spy();
+        this.emit = sinon.spy();
+        this.removeAllListeners = sinon.spy();
+        events = this;
+      });
+
+      instance.add(name);
+      expect(trigger).to.be.a('function');
+
+      trigger('change');
+      expect(events.emit).to.have.property('callCount', 1);
+      expect(events.emit.firstCall.args).to.deep.equal(['change', { filepath: name }]);
+
+      events.emit.resetHistory();
+
+      trigger('error');
+      expect(events.emit).to.have.property('callCount', 1);
+      expect(events.emit.firstCall.args).to.have.property(0, 'error');
+
+      events.emit.resetHistory();
+
+      trigger('change');
+      expect(events.emit).to.have.property('callCount', 0);
+    });
+
+    it('does not trigger changes after an unexpected close', () => {
+      const name = 'strawberry';
+      let events;
+      let trigger;
+
+      vmLib((file, opts, cb) => {
+        trigger = cb;
+        return { close: sinon.spy() };
+      }, function EventEmitter() {
+        this.on = sinon.spy();
+        this.once = sinon.spy();
+        this.removeListener = sinon.spy();
+        this.emit = sinon.spy();
+        this.removeAllListeners = sinon.spy();
+        events = this;
+      });
+
+      instance.add(name);
+      expect(trigger).to.be.a('function');
+
+      trigger('change');
+      expect(events.emit).to.have.property('callCount', 1);
+      expect(events.emit.firstCall.args).to.deep.equal(['change', { filepath: name }]);
+
+      events.emit.resetHistory();
+
+      trigger('close');
+      expect(events.emit).to.have.property('callCount', 1);
+      expect(events.emit.firstCall.args).to.have.property(0, 'error');
+
+      events.emit.resetHistory();
+
+      trigger('change');
+      expect(events.emit).to.have.property('callCount', 0);
     });
   });
 
