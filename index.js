@@ -2,6 +2,14 @@
 const fs = require('fs');
 const EventEmitter = require('events');
 
+const createError = (code, filepath, message) => {
+  const error = new Error(message);
+  error.code = code;
+  error.filepath = filepath;
+
+  return error;
+};
+
 module.exports = (options) => {
   const persistent = !(options && !options.persistent);
   const files = {};
@@ -12,28 +20,19 @@ module.exports = (options) => {
       return;
     }
 
-    const watcher = fs.watch(filepath, { persistent: persistent }, (eventType, filename) => {
+    const watcher = fs.watch(filepath, { persistent: persistent }, (eventType) => {
       if (eventType === 'change') {
         return events.emit('change', { filepath: filepath });
       }
 
       if (eventType === 'close' && !watcher._fwf_closed) {
         delete files[filepath];
-        const error = new Error('watcher closed unexpectedly');
-        error.code = 'UnexpectedClose';
-        error.filepath = filepath;
-
-        return events.emit('error', error);
+        return events.emit('error', createError('UnexpectedClose', filepath, 'watcher closed unexpectedly'));
       }
 
       if (eventType === 'error') {
         delete files[filepath];
-        const error = new Error('watcher errored');
-        error.code = 'UnexpectedError';
-        error.filepath = filepath;
-        error._arguments = arguments;
-
-        return events.emit('error', error);
+        return events.emit('error', createError('UnexpectedError', filepath, 'watcher errored'));
       }
     });
 
