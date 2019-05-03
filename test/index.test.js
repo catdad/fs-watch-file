@@ -115,7 +115,7 @@ describe('module', () => {
         module
       });
 
-      instance = vm.runInContext(libtext, sandbox)(options);
+      instance = vm.runInContext(libtext, sandbox, { filename: libpath })(options);
     };
 
     it('emits an error if a file watcher closes unexpectedly', done => {
@@ -182,6 +182,47 @@ describe('module', () => {
       });
 
       instance.add(name);
+    });
+
+    it('watches only once even when the same file is added multiple times', done => {
+      const name = 'kiwi';
+      let count = 0;
+
+      vmLib((file, opts, cb) => {
+        count += 1;
+
+        setTimeout(() => {
+          expect(count).to.equal(1);
+          done();
+        }, 1);
+
+        return { close: () => {} };
+      });
+
+      instance.add(name);
+      instance.add(name);
+      instance.add(name);
+      instance.add(name);
+    });
+
+    it('removes only once even if it is called multiple times', () => {
+      const name = 'kiwi';
+      let count = 0;
+
+      vmLib((file, opts, cb) => {
+        return { close: () => {
+          count += 1;
+        } };
+      });
+
+      instance.add(name);
+      expect(count).to.equal(0);
+
+      instance.remove(name);
+      expect(count).to.equal(1);
+
+      instance.remove(name);
+      expect(count).to.equal(1);
     });
   });
 
