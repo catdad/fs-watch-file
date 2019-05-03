@@ -18,6 +18,7 @@ module.exports = (options) => {
       }
 
       if (eventType === 'close' && !watcher._fwf_closed) {
+        delete files[filepath];
         const error = new Error('watcher closed unexpectedly');
         error.code = 'UnexpectedClose';
         error.filepath = filepath;
