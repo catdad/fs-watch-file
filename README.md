@@ -13,7 +13,7 @@
 [npm.link]: https://www.npmjs.com/package/fs-watch-file
 [npm-version.svg]: https://img.shields.io/npm/v/fs-watch-file.svg
 
-This module is a very thin wrapper around [`fs.watch`](https://nodejs.org/docs/latest-v10.x/api/fs.html#fs_fs_watch_filename_options_listener) with a focus on allowing you to watch only specific files for changes. This module is not meant as a complete file watching solution -- for that, you may want to look at [`chokidar`](https://www.npmjs.com/package/chokidar). Instead, if you would like to watch already known files (perhaps you [already globbed them](https://www.npmjs.com/package/globby) on your own) amd would like to do so in a cross-platform way with no dependencies, then this module might be for you.
+This module is a very thin wrapper around [`fs.watch`](https://nodejs.org/docs/latest-v10.x/api/fs.html#fs_fs_watch_filename_options_listener) with a focus on allowing you to watch only specific files for changes. This module is not meant as a complete file watching solution -- for that, you may want to look at [`watchboy`](https://www.npmjs.com/package/watchboy). Instead, if you would like to watch already known files (perhaps you [already globbed them](https://www.npmjs.com/package/globby) on your own) amd would like to do so in a cross-platform way with no dependencies, then this module might be for you.
 
 ## Install
 
